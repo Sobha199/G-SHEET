@@ -1,4 +1,5 @@
-
+import gspread
+from gspread_dataframe import set_with_dataframe
 import streamlit as st
 import pandas as pd
 from datetime import datetime, timedelta
@@ -16,7 +17,9 @@ form_headers = [
 # Load login credentials and logo
 login_df = pd.read_csv("login coder.csv")
 logo = Image.open("s2m-logo.png")
-
+gc = gspread.service_account(filename="service_account.json")
+sh = gc.open_by_url("https://docs.google.com/spreadsheets/d/1265kUfjiWYuh5fsSwbU5HdA7soyn6qcfRc-4xAozbjk/edit?usp=sharing")
+worksheet = sh.sheet1
 # Setup session logs path
 SESSION_LOG_PATH = "session_logs.csv"
 
@@ -111,7 +114,16 @@ def form_page():
                 dos, codes, error_type, error_comments,
                 no_of_errors, chart_status, auditor_emp_id, auditor_emp_name
             ]], columns=form_headers)
-            new_data.to_csv("data.csv", mode="a", header=not os.path.exists("data.csv"), index=False)
+           # Read existing data from sheet
+existing_df = pd.DataFrame(worksheet.get_all_records())
+
+# Append new data
+updated_df = pd.concat([existing_df, new_data], ignore_index=True)
+
+# Write back to sheet
+worksheet.clear()
+set_with_dataframe(worksheet, updated_df)
+
             st.success("Data submitted successfully!")
            
 def dashboard_page():
