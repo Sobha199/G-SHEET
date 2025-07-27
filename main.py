@@ -107,24 +107,24 @@ def form_page():
         auditor_emp_name = st.text_input("Auditor Emp Name")
 
         submit = st.form_submit_button("Submit")
-        if submit:
-            new_data = pd.DataFrame([[
-                today, emp_id, emp_name, project, category,
-                login_id, login_name, team_lead, chart_id, page_no,
-                dos, codes, error_type, error_comments,
-                no_of_errors, chart_status, auditor_emp_id, auditor_emp_name
-            ]], columns=form_headers)
-           # Read existing data from sheet
-existing_df = pd.DataFrame(worksheet.get_all_records())
+if submit:
+    new_data = pd.DataFrame([[ 
+        today, emp_id, emp_name, project, category,
+        login_id, login_name, team_lead, chart_id, page_no,
+        dos, codes, error_type, error_comments,
+        no_of_errors, chart_status, auditor_emp_id, auditor_emp_name
+    ]], columns=form_headers)
 
-# Append new data
-updated_df = pd.concat([existing_df, new_data], ignore_index=True)
+    # Read existing data from Google Sheet
+    existing_df = pd.DataFrame(worksheet.get_all_records())
 
-# Write back to sheet
-worksheet.clear()
-set_with_dataframe(worksheet, updated_df)
+    # Append and update
+    updated_df = pd.concat([existing_df, new_data], ignore_index=True)
+    worksheet.clear()
+    set_with_dataframe(worksheet, updated_df)
 
-            st.success("Data submitted successfully!")
+    st.success("Data submitted successfully!")
+
            
 def dashboard_page():
     st.image(logo, width=150)
